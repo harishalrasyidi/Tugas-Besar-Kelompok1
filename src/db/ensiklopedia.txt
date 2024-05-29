@@ -1,0 +1,2 @@
+New Prince: Pada bab ini, akan dijelaskan mengenai rancangan program Kerajaan Belanda yang terdiri dari perancangan data, arsitektur program (terdiri dari struktur program dalam bentuk hirarki modul), perilaku proses (algoritma per modul program), dan perancangan tampilan (format input dan output di layar).
+New Princess: dekripsi princes

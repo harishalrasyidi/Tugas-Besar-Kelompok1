@@ -1,0 +1,81 @@
+# depslib dependency file v1.0
+1716820174 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\referensi\rafka\tubes\src\driver\annisa_dian.c
+	<conio.h>
+	"../header/annisa_dian.h"
+
+1716820050 c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\referensi\rafka\tubes\src\header\annisa_dian.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<time.h>
+	"../header/harish.h"
+
+1716817438 c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\referensi\rafka\tubes\src\header\harish.h
+	"../header/annisa_dian.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<time.h>
+
+1716817484 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\referensi\rafka\tubes\src\driver\harish.c
+	"../header/harish.h"
+
+1716941262 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\referensi\rafka\tubes\src\driver\rafka.c
+	"../header/rafka.h"
+
+1716944260 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\referensi\rafka\tubes\src\main.c
+	<conio.h>
+	"header/annisa_dian.h"
+	"header/harish.h"
+
+1716941262 c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\referensi\rafka\tubes\src\header\rafka.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<time.h>
+	"../header/harish.h"
+	"../header/annisa_dian.h"
+
+1717000225 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\program\tubes\src\driver\harish.c
+	"../header/harish.h"
+
+1717000001 c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\program\tubes\src\header\harish.h
+	"../header/annisa_dian.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<time.h>
+
+1716996504 c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\program\tubes\src\header\annisa_dian.h
+	<conio.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<time.h>
+	"../header/harish.h"
+
+1716990520 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\program\tubes\src\driver\rafka.c
+	"../header/rafka.h"
+
+1716941262 c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\program\tubes\src\header\rafka.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+	<time.h>
+	"../header/harish.h"
+	"../header/annisa_dian.h"
+
+1717000030 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\program\tubes\src\main.c
+	<conio.h>
+	"header/annisa_dian.h"
+	"header/harish.h"
+
+1716999982 source:c:\users\lenovo\onedrive - politeknik negeri bandung\documents\akademik\semester 2\struktur data dan algoritma\praktek\6. tugas besar\netherland\program\tubes\src\driver\annisa_dian.c
+	"../header/annisa_dian.h"
+
