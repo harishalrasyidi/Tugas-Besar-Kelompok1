@@ -21,19 +21,30 @@ void countChildren(DataTree *tree) {
     char parentName[100];
     displayTree(tree);
     printf("\n\n");
-    printf("Masukan nama Royal Family Member yang ingin dihitung jumlah anaknya : ");
-    fgets(parentName, sizeof(parentName), stdin);
-    parentName[strcspn(parentName, "\n")] = '\0'; // Hilangkan newline dari input
 
-    //mencari apkah ada atau tidak node yang dimaksud
-    NBTree *parentNode = findNode(tree->Root, parentName);
-    if (parentNode != NULL) {
-        //memanggil fungsi memanggil fungsi hitung jumlah anak alias degree suatu node
-        int numChildren = prosesCountChildren(parentNode);
-        printf("Jumlah anak dari %s adalah %d.\n", parentName, numChildren);
-    } else {
-        printf("Anggota keluarga dengan nama '%s' tidak ditemukan.\n", parentName);
-    }
+    do{
+        printf("Masukan nama Royal Family Member yang ingin dihitung jumlah anaknya (ketik ");
+        warnateks(RED);printf("'exit'");warnateks(11);
+        printf(" untuk keluar) : ");
+        fgets(parentName, sizeof(parentName), stdin);
+        parentName[strcspn(parentName, "\n")] = '\0'; // Hilangkan newline dari input
+
+        if (strcmp(parentName, "exit") == 0) {
+            return; // Exit the function if the user types 'exit'
+        }
+
+        //mencari apkah ada atau tidak node yang dimaksud
+        NBTree *parentNode = findNode(tree->Root, parentName);
+        if (parentNode != NULL) {
+            //memanggil fungsi memanggil fungsi hitung jumlah anak alias degree suatu node
+            int numChildren = prosesCountChildren(parentNode);
+            printf("Jumlah anak dari %s adalah %d.\n", parentName, numChildren);
+        } else {
+            printf("Anggota keluarga dengan nama '%s' tidak ditemukan.\n", parentName);
+            printf("Silakan coba lagi.\n\n");
+        }
+
+    } while(1);
 
     waitForEnter();
 }
@@ -61,13 +72,32 @@ int prosesCountChildren(NBTree *parent) {
 void countGeneration(DataTree *tree) {
     clearscreen();
     if (tree == NULL || tree->Root == NULL) {
+        gotoxy(30, 4);
         printf("Pohon Royal Family Member kosong.\n");
+        waitForEnter();
         return;
     }
 
     int treeLevel;
     treeLevel = prosesCountGeneration(tree->Root);
-    printf("Jumlah level atau generasi dalam pohon Royal Family Member adalah %d.\n", treeLevel);
+    gotoxy(30, 5);
+    warnateks(11); // Set color to light blue
+    printf("==========================================");
+    gotoxy(30, 6);
+    printf("|                                        |");
+    gotoxy(30, 7);
+    printf("|    Jumlah level atau generasi dalam    |");
+    gotoxy(30, 8);
+    printf("|    pohon Royal Family Member adalah    |");
+    gotoxy(30, 9);
+    printf("|                  %d                     |", treeLevel);
+    gotoxy(30, 10);
+    printf("|                                        |");
+    gotoxy(30, 11);
+    printf("==========================================");
+
+//    printf("Jumlah level atau generasi dalam pohon Royal Family Member adalah %d.\n", treeLevel);
+    Sleep(500);
     waitForEnter();
 }
 
@@ -98,15 +128,25 @@ int prosesCountGeneration(NBTree *node) {
 //blok fungsi untuk opsi 8 (timeskip)
 void yearPasses(DataTree *tree) {
     clearscreen();
+    gotoxy(30,4);
+    printf("========== Menu Lompat Tahun (Timeskip)==========");
+    gotoxy(30,6);
     printf("Tahun saat ini adalah %d.\n", currentYear);
+
     int years;
+    Sleep(500);
+    gotoxy(30,7);
     printf("Masukkan jumlah tahun untuk melompat ke depan: ");
     scanf("%d", &years);
 
     //memanggil fungsi timeskip untuk memproses lompat tahun
     prosesTimeskip(years);
 
-    printf("Tahun saat ini adalah %d.\n", currentYear);
+
+    loading();
+    clearscreen();
+    gotoxy(30,5);
+    printf("Tahun saat ini adalah %d.\n\n\n", currentYear);
     waitForEnter();
 }
 
@@ -144,7 +184,6 @@ void resetProgress(DataTree **tree, const char *initialFilename, const char *dat
         exit(EXIT_FAILURE);
     }
 
-    waitForEnter();
     //baca tiap baris dari initialdata dan ditulis ke data
     char buffer[256];
     while (fgets(buffer, sizeof(buffer), initialFile)) {
@@ -157,8 +196,12 @@ void resetProgress(DataTree **tree, const char *initialFilename, const char *dat
 
     //mengembalikan tahun ke tahun sekarang
     getTahunSekarang();
+
+    loading();
     waitForEnter();
 }
+
+
 
 
 //view ensiklopedi
@@ -222,12 +265,45 @@ void displayEncyclopediaEntry(DataTree *tree, char *name) {
 }
 
 void viewEncyclopedia(DataTree *tree) {
-    printf("Daftar anggota keluarga kerajaan dalam Ensiklopedia:\n");
+    clearscreen();
+    gotoxy(30,4);printf("========== Ensiklopedia ==========");
+    printf("\n\nDaftar anggota keluarga kerajaan dalam Ensiklopedia:\n\n");
 
     // Tampilkan terlebih dahulu silsilah kerajaan yang aktif IsRoyalFamilyMember bernilai True
-    printf("Anggota Keluarga Kerajaan yang Aktif:\n");
-    displayTreeFromLeader(tree);
+//    printf("Anggota Keluarga Kerajaan yang Aktif:\n");
+    displayTree(tree);
 
+    char name[100];
+    bool nameFound = false;
+
+    do {
+        // Meminta input nama anggota keluarga untuk menampilkan ensiklopedianya
+        printf(" ");
+        printf("\nMasukkan nama anggota keluarga untuk menampilkan ensiklopedianya (Ketik ");
+        warnateks(RED);printf("'exit'");warnateks(11);
+        printf(" untuk kembali ke menu utama): ");
+        fgets(name, sizeof(name), stdin);
+        name[strcspn(name, "\n")] = '\0'; // Hilangkan newline dari input
+
+        if (strcmp(name, "exit") == 0) {
+            return; // Keluar dari fungsi jika pengguna memilih untuk kembali ke menu utama
+        }
+
+        // Tampilkan ensiklopedianya jika nama ditemukan
+        if (findNode(tree->Root, name) != NULL) {
+            clearscreen();
+            displayEncyclopediaEntry(tree, name);
+            nameFound = true;
+        } else {
+            warnateks(YELLOW);
+            printf("\nAnggota keluarga dengan nama '%s' tidak ditemukan.\n", name);
+            warnateks(11);
+            nameFound = false;
+        }
+
+    } while (!nameFound);
+
+    /*
     // Meminta input nama anggota keluarga untuk menampilkan ensiklopedianya
     char name[100];
     printf("\nMasukkan nama anggota keluarga untuk menampilkan ensiklopedianya: ");
@@ -236,7 +312,7 @@ void viewEncyclopedia(DataTree *tree) {
 
     // Tampilkan ensiklopedianya
     displayEncyclopediaEntry(tree, name);
-
+    */
     // Tunggu sampai pengguna menekan tombol Enter untuk kembali ke menu utama
     printf("\nTekan tombol Enter untuk kembali ke menu utama...");
     while (getch() != 13); // 13 adalah kode ASCII untuk tombol Enter
@@ -245,35 +321,87 @@ void viewEncyclopedia(DataTree *tree) {
 
 //aturan
 void displayAturan() {
+
     clearscreen();
     printLine();
-    printf("|                          Aturan Penurutan Tahta                             |\n");
-    printLine();
-    printf("| Pewaris Utama: Anak tertua dari raja/ratu yang sedang berkuasa, tanpa       |\n");
-    printf("| memandang jenis kelamin (putra atau putri).                                 |\n");
-    printLine();
-    printf("| Pewaris Selanjutnya: Kalau anak tertua meninggal dunia sebelum raja/ratu,   |\n");
-    printf("| maka hak suksesi jatuh pada anak tertua selanjutnya dari raja/ratu tersebut.|\n");
-    printLine();
-    printf("| Keluarga Kerajaan: Kalau raja/ratu tidak memiliki keturunan, takhta akan    |\n");
-    printf("| diwariskan kepada anggota keluarga kerajaan lainnya berdasarkan urutan yang |\n");
-    printf("| ditetapkan dalam konstitusi. Urutan ini memprioritaskan kerabat dekat dengan|\n");
-    printf("| derajat kekerabatan pertama, kedua, dan ketiga.                             |\n");
-    printLine();
-    printf("| Derajat Kekerabatan:                                                        |\n");
-    printf("| a. Derajat Pertama: Hubungan orang tua-anak.                                |\n");
-    printf("| b. Derajat Kedua: Hubungan saudara kandung, kakek-nenek dan cucu.           |\n");
-    printf("| c. Derajat Ketiga: Hubungan paman/bibi dan keponakan.                       |\n");
-    printLine();
-    printf("| Kehilangan Hak Suksesi:                                                     |\n");
-    printf("| a. Kerabat dengan derajat kekerabatan lebih jauh dari ketiga.               |\n");
-    printf("| b. Anggota keluarga kerajaan yang menikah tanpa persetujuan parlemen.       |\n");
-    printLine();
-    printf("| Ketentuan lain: Raja/ratu diperbolehkan turun takhta atas kehendak sendiri. |\n");
+ // Castle format
+    printf("              !                                         !\n");
+    printf("              |>>>                                      |>>>\n");
+    printf("              |>>>                                      |>>>\n");
+    printf("              |_   _   _                       _   _   _|\n");
+    printf("  !._         | |_| |_| |                     | |_| |_| |           !._\n");
+    printf("  |* '-._     \\_________/                     \\_________/           |* '-._\n");
+    printf("  |CC  _.'     \\ .-.   /                       \\   .-. /            |CC  _.'.\n");
+    printf("  |.--'         ||_|  |                         |  |_||             |.--'\n");
+    printf("  |_   _   _   _|  _  |_   _   _   _   _   _   _|  _  |_   _   _   _|\n");
+    printf("  | |_| |_| |_| |_| |_| |_| |_| |_| |_| |_| |_| |_| |_| |_| |_| |_| |\n");
+    printf("  \\_________________________________________________________________/\n");
+    printf("   |   .-.          .-.           .-.           .-.          .-.    |\n");
+    printf("   |   |_|          |_|           |_|           |_|          |_|    |\n");
+    printf("   |                                                                |\n");
+    printf("   |                          ATURAN PENURUTAN TAHTA                |\n");
+    printf("   |                                                                |\n");
+    printf("   | Pewaris Utama: Anak tertua dari raja/ratu yang sedang berkuasa,|\n");
+    printf("   | tanpa memandang jenis kelamin (putra atau putri).              |\n");
+    printf("   |                                                                |\n");
+    printf("   | Pewaris Selanjutnya: Kalau anak tertua meninggal dunia sebelum |\n");
+    printf("   | raja/ratu, maka hak suksesi jatuh pada anak tertua selanjutnya |\n");
+    printf("   | dari raja/ratu tersebut.                                       |\n");
+    printf("   |                                                                |\n");
+    printf("   | Keluarga Kerajaan: Kalau raja/ratu tidak memiliki keturunan,   |\n");
+    printf("   | takhta akan diwariskan kepada anggota keluarga kerajaan lainnya|\n");
+    printf("   | berdasarkan urutan yang ditetapkan dalam konstitusi. Urutan ini|\n");
+    printf("   | memprioritaskan kerabat dekat dengan derajat kekerabatan       |\n");
+    printf("   | pertama, kedua, dan ketiga.                                    |\n");
+    printf("   |                                                                |\n");
+    printf("   | Derajat Kekerabatan:                                           |\n");
+    printf("   | a. Derajat Pertama: Hubungan orang tua-anak.                   |\n");
+    printf("   | b. Derajat Kedua: Hubungan saudara kandung, kakek-nenek dan    |\n");
+    printf("   | cucu.                                                          |\n");
+    printf("   | c. Derajat Ketiga: Hubungan paman/bibi dan keponakan.          |\n");
+    printf("   |                                                                |\n");
+    printf("   | Kehilangan Hak Suksesi:                                        |\n");
+    printf("   | a. Kerabat dengan derajat kekerabatan lebih jauh dari ketiga.  |\n");
+    printf("   | b. Anggota keluarga kerajaan yang menikah tanpa persetujuan    |\n");
+    printf("   | parlemen.                                                      |\n");
+    printf("   |                                                                |\n");
+    printf("   | Ketentuan lain: Raja/ratu diperbolehkan turun takhta atas      |\n");
+    printf("   | kehendak sendiri.                                              |\n");
+    printf("   | ______________________________________________________________ |\n");
+    printf("   ~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\"^\"~\n");
+
     printLine();
     waitForEnter();
 }
 
+void setOptionColor(int option, int selectedOption) {
+    if (option == selectedOption) {
+        warnateks(15); // Highlight color for the selected option
+    } else {
+        warnateks(11); // Regular color for unselected options
+    }
+}
+
+void loading(){
+	system("cls");
+
+        gotoxy(58,10);
+        printf("LOADING");
+		Sleep(500);
+		gotoxy(30,11);printf("\t\t\t_____                 ");
+		gotoxy(30,12);printf("\t\t\t~~~~~                 ");
+		Sleep(500);
+		gotoxy(30, 11); printf("\t\t\t_______             ");
+		gotoxy(30, 12); printf("\t\t\t~~~~~~~             ");
+		Sleep(500);
+		gotoxy(30, 11); printf("\t\t\t________________       ");
+		gotoxy(30, 12); printf("\t\t\t~~~~~~~~~~~~~~~~       ");
+		Sleep(500);
+		gotoxy(30,11);printf("\t\t\t_________________________");
+		gotoxy(30,12);printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~");
+		Sleep(900);
+		clearscreen();
+}
 
 
 //fungsi tampilan

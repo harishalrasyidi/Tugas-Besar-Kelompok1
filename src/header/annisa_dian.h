@@ -10,9 +10,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#define MAX_LINE_LENGTH 1000
+#include <windows.h>
 #include <time.h>
-#define MAX_LINE_LENGTH 200
 
+#define BLACK           0
+#define DARK_BLUE       1
+#define GREEN           2
+#define TURQUOISE       3
+#define DARK_RED        4
+#define PURPLE          5
+#define FOREST_GREEN    6
+#define LIGHT_GRAY      7
+#define GRAY            8
+#define BLUE            9
+#define LIGHT_GREEN    10
+#define LIGHT_BLUE     11
+#define RED            12
+#define PINK            13
+#define YELLOW         14
+#define WHITE          15
+#define STDALERT      140
+#define STDHEADER     143
+#define STDBACKGROUND 159
 // Enumeration for gender
 typedef enum {
     Male,
@@ -20,7 +40,7 @@ typedef enum {
 } Gender;
 
 // Typedef for information type
-typedef char InfoType[100];
+typedef char InfoType[200];
 
 // Typedef for tree address
 typedef struct TNBTree *TNBTreeAddress;
@@ -63,7 +83,7 @@ void waitForEnter();
 NBTree* findNode(NBTree *tree, char* name);
 void displayActiveRoyalFamilyMembers(NBTree *tree);
 void displayEncyclopediaEntry(DataTree *tree, char *name);
-
+void printFromFileSplash(const char* location);
 //perlu include untuk var global currentyear
 #include "../header/harish.h"
 

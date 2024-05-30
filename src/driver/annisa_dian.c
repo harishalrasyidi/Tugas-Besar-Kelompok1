@@ -4,9 +4,44 @@
 
 
 #include "../header/annisa_dian.h"
+#include <windows.h>
 
+#define BLACK           0
+#define DARK_BLUE       1
+#define GREEN           2
+#define TURQUOISE       3
+#define DARK_RED        4
+#define PURPLE          5
+#define FOREST_GREEN    6
+#define LIGHT_GRAY      7
+#define GRAY            8
+#define BLUE            9
+#define LIGHT_GREEN    10
+#define LIGHT_BLUE     11
+#define RED            12
+#define PINK            13
+#define YELLOW         14
+#define WHITE          15
+#define STDALERT      140
+#define STDHEADER     143
+#define STDBACKGROUND 159
 
+void warnateks(int warna) // Modul yang berfungsi untuk memberi warna ke karakter
+{
+    HANDLE hConsole;
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, warna);
+}
 
+void gotoxy(int x, int y) // Modul untuk memfungsikan fungsi gotoxy
+{
+    HANDLE hConsoleOutput;
+    COORD dwCursorPosition;
+    dwCursorPosition.X = x;
+    dwCursorPosition.Y = y;
+    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hConsoleOutput, dwCursorPosition);
+}
 /**** Pembuatan node baru ****/
 NBTree* createNode(char *name, int yearOfBirth, Gender gender, bool isLeader, bool isRoyalFamilyMember, bool isMarriageApproved, char *parentName, char *partnerName, bool isAlive) {
 /* IS : name, yearOfBirth, gender, isLeader, isRoyalFamilyMember, isMarriageApproved, parentName, partnerName, dan isAlive sembarang */
@@ -45,31 +80,41 @@ bool parseBool(char *boolStr) {
     return strcmp(boolStr, "1") == 0;
 }
 
-/**** Parsing string line menjadi nilai-nilai yang diperlukan ****/
 void parseLine(char *line, char *name, int *yearOfBirth, Gender *gender, bool *isLeader, bool *isRoyalFamilyMember, bool *isMarriageApproved, char *parentName, char *partnerName, bool *isAlive) {
-/* IS : line, name, yearOfBirth, gender, isLeader, isRoyalFamilyMember, isMarriageApproved, parentName, partnerName, dan isAlive sembarang */
-/* FS : name, yearOfBirth, gender, isLeader, isRoyalFamilyMember, isMarriageApproved, parentName, partnerName, dan isAlive memiliki nilai yang diparsing dari line */
-    char genderStr[10], isLeaderStr[10], isRoyalFamilyMemberStr[10], isMarriageApprovedStr[10], isAliveStr[10], partnerNameTemp[100];
+    char genderStr[10], isLeaderStr[10], isRoyalFamilyMemberStr[10], isMarriageApprovedStr[10], partnerNameTemp[100], isAliveStr[10];
     int parsed = sscanf(line, "%[^:]:%d:%[^:]:%[^:]:%[^:]:%[^:]:%[^:]:%[^:]:%s", name, yearOfBirth, genderStr, isLeaderStr, isRoyalFamilyMemberStr, isMarriageApprovedStr, parentName, partnerNameTemp, isAliveStr);
 
+    // Pastikan semua nilai sudah diparsing dengan benar
+    if (parsed < 9) {
+        strcpy(isAliveStr, "0");
+    }
+    if (parsed < 8) {
+        partnerNameTemp[0] = '\0'; // Ensure partnerName is empty if not specified
+    }
     if (parsed < 7) {
         parentName[0] = '\0'; // Ensure parentName is empty if not specified
     }
-    if (parsed < 8) {
-        strcpy(isAliveStr, "0");
-    }
-	if (parsed < 9) {
-        strcpy(partnerNameTemp, ""); // Ensure partnerName is empty if not specified
+    if (strcmp(partnerNameTemp, "NULL") == 0){
+        strcpy(partnerNameTemp, "");
     }
 
-    strcpy(partnerName, partnerNameTemp); // Copy partnerNameTemp to partnerName
+    // Handling empty partnerName
+    if (strlen(partnerNameTemp) == 0) {
+        strcpy(partnerName, ""); // Set partnerName to empty string
+        *isAlive = parseBool(isAliveStr);
+    } else {
+        strcpy(partnerName, partnerNameTemp); // Copy partnerNameTemp to partnerName
+        // If partnerName is not empty, parse isAlive from the end
+        sscanf(line, "%*[^:]:%*d:%*[^:]:%*[^:]:%*[^:]:%*[^:]:%*[^:]:%*[^:]:%[^:]", isAliveStr);
+        *isAlive = parseBool(isAliveStr);
+    }
 
     *gender = parseGender(genderStr);
     *isLeader = parseBool(isLeaderStr);
     *isRoyalFamilyMember = parseBool(isRoyalFamilyMemberStr);
     *isMarriageApproved = parseBool(isMarriageApprovedStr);
-    *isAlive = parseBool(isAliveStr);
 }
+
 
 /**** Menambahkan anak ke node parent ****/
 void addChild(NBTree *parent, NBTree *child) {
@@ -114,12 +159,12 @@ DataTree* buildTreeFromFile(const char *filename) {
     tree->Root = NULL;
     char line[256];
     NBTree *nodes[100];
-    char parentNames[100][20];
+    char parentNames[200][20];
     char partnerNames[100][20];
     int nodeCount = 0;
 
     while (fgets(line, sizeof(line), file)) {
-        char name[100], parentName[100] = "", partnerName[100] = "";
+        char name[100], parentName[200] = "", partnerName[100] = "";
         int yearOfBirth;
         Gender gender;
         bool isLeader, isRoyalFamilyMember, isMarriageApproved, isAlive;
@@ -179,8 +224,8 @@ void writeNodeToFile(NBTree *node, FILE *file)
         node->IsLeader ? 1 : 0,
         node->IsRoyalFamilyMember ? 1 : 0,
         node->IsMarriageApproved ? 1 : 0,
-        strlen(node->ParentName) > 0 ? node->ParentName : "",
-        strlen(node->PartnerName) > 0 ? node->PartnerName : "",
+        strlen(node->ParentName) > 0 ? node->ParentName : "NULL",
+        strlen(node->PartnerName) > 0 ? node->PartnerName : "NULL",
         node->IsAlive ? 1 : 0);
 
     writeNodeToFile(node->FirstSon, file);
@@ -207,132 +252,188 @@ void waitForEnter() {
     printf("\nTekan tombol Enter untuk melanjutkan...");
     while (getch() != 13); // 13 adalah kode ASCII untuk tombol Enter
 }
+
 void insertFamilyMember(DataTree *tree) {
+	clearscreen();
+	displayTree(tree);
     char parentName[100];
     char childName[100];
     int parentYearOfBirth, childYearOfBirth;
     Gender childGender;
 
-    printf("Masukkan informasi anggota keluarga kerajaan:\n");
-
+    printf("\nMasukkan informasi anggota keluarga kerajaan:\n");
+	NBTree *parent;
     // Input nama orang tua
-    printf("Nama orang tua: ");
-    fgets(parentName, sizeof(parentName), stdin);
-    parentName[strcspn(parentName, "\n")] = '\0'; // Hilangkan newline dari input
+	do {
+	    printf("Nama orang tua (klik 'x' untuk keluar): ");
+	    fgets(parentName, sizeof(parentName), stdin);
+	    parentName[strcspn(parentName, "\n")] = '\0'; // Hilangkan newline dari input
 
-    // Mencari node orang tua
-    NBTree *parent = findNode(tree->Root, parentName);
+	    if (strcmp(parentName, "x") == 0) {
+	        // Kembali ke menu utama jika user memilih untuk keluar
+	        return;
+	    }
 
-    // Validasi apakah orang tua ditemukan dan sudah menikah
-    if (parent == NULL) {
-        printf("Orang tua dengan nama '%s' tidak ditemukan.\n", parentName);
-    } else if (strlen(parent->PartnerName) == 0) {
-        printf("Orang tua '%s' belum memiliki pasangan. Tidak bisa memiliki anak.\n", parentName);
-    }
+	    // Mencari node orang tua
+	    parent = findNode(tree->Root, parentName);
 
-    // Input nama anak
-    printf("Nama anak: ");
-    fgets(childName, sizeof(childName), stdin);
-    childName[strcspn(childName, "\n")] = '\0'; // Hilangkan newline dari input
+	    if (parent == NULL) {
+	        printf("Orang tua dengan nama '%s' tidak ditemukan.\n", parentName);
+	    } else if (strlen(parent->PartnerName) == 0) {
+	        printf("Orang tua '%s' belum memiliki pasangan. Tidak bisa memiliki anak.\n", parentName);
+	    } else {
+	        break; // Keluar dari loop jika orang tua valid dan telah menikah
+	    }
+	} while (true);
 
-    // Input tahun lahir anak
-    printf("Tahun lahir anak: ");
-    scanf("%d", &childYearOfBirth);
+	// Input nama anak
+	printf("Nama anak: ");
+	fgets(childName, sizeof(childName), stdin);
+	childName[strcspn(childName, "\n")] = '\0'; // Hilangkan newline dari input
 
-    // Validasi selisih tahun lahir anak dan orang tua
-    if (childYearOfBirth - parent->YearOfBirth < 19) {
-        printf("Tahun lahir anak harus terpaut minimal 19 tahun dari tahun lahir orang tua.\n");
-    }
+	// Input tahun lahir anak
+	do {
+	    printf("Tahun lahir anak (klik 'x' untuk keluar): ");
+	    char input[100];
+	    fgets(input, sizeof(input), stdin);
+
+	    if (strcmp(input, "x\n") == 0) {
+	        // Kembali ke menu utama jika user memilih untuk keluar
+	        return;
+	    }
+
+	    sscanf(input, "%d", &childYearOfBirth);
+
+	    if (childYearOfBirth - parent->YearOfBirth < 19) {
+	        printf("Tahun lahir anak harus terpaut minimal 19 tahun dari tahun lahir orang tua.\n");
+	    }
+	} while (childYearOfBirth - parent->YearOfBirth < 19);
 
     // Input gender anak
     char genderStr[10];
-    printf("Gender anak (Male/Female): ");
-    scanf("%s", genderStr);
-    childGender = parseGender(genderStr);
+	do {
+	    printf("Gender anak (Male/Female) (klik 'x' untuk keluar): ");
+	    fgets(genderStr, sizeof(genderStr), stdin);
+	    genderStr[strcspn(genderStr, "\n")] = '\0'; // Hilangkan newline dari input
+
+	    if (strcmp(genderStr, "x") == 0) {
+	        // Kembali ke menu utama jika user memilih untuk keluar
+	        return;
+	    }
+
+	    if (strcmp(genderStr, "Male") != 0 && strcmp(genderStr, "Female") != 0) {
+	        printf("Inputan tidak valid. Gender anak harus 'Male' atau 'Female'.\n");
+	    }
+	} while (strcmp(genderStr, "Male") != 0 && strcmp(genderStr, "Female") != 0);
 
     // Memperbarui file dengan menambahkan node anak baru
-    insertNode(tree, childName, childYearOfBirth, childGender, 0, 1, 1, parentName, "", 0);
+    insertNode(tree, childName, childYearOfBirth, childGender, 0, 1, 1, parentName, "NULL", 1);
     updateFile("../db/data.txt", tree);
     printf("Anggota keluarga berhasil ditambahkan.\n");
     waitForEnter();
 }
 
 void insertPartner(DataTree *tree) {
+	clearscreen();
     // Menampilkan daftar anggota keluarga kerajaan yang belum memiliki pasangan
     printf("Daftar anggota keluarga kerajaan:\n");
-    displayTreeFromLeader(tree);
+    displayTree(tree);
 
 	    // Loop akan terus berjalan hingga input nama anggota keluarga valid
 	char name[100];
 	NBTree *member;
-	do {
-	    printf("\nMasukkan nama anggota keluarga yang ingin diberikan pasangan: ");
-	    fgets(name, sizeof(name), stdin);
-	    name[strcspn(name, "\n")] = '\0'; // Hilangkan newline dari input
+    do {
+        printf("\nMasukkan nama anggota keluarga yang ingin diberikan pasangan (klik 'x' untuk keluar): ");
+        fgets(name, sizeof(name), stdin);
+        name[strcspn(name, "\n")] = '\0'; // Hilangkan newline dari input
 
-	    member = findNode(tree->Root, name);
-	    if (member == NULL) {
-	        printf("Anggota keluarga dengan nama '%s' tidak ditemukan.\n", name);
-	    } else if (strlen(member->PartnerName) > 0) {
-	        printf("%s sudah memiliki pasangan.\n", name);
-	        member = NULL; // Reset member jika sudah memiliki pasangan
-	    } else {
-	        int age = calculateAge(member->YearOfBirth);
-	        if (age < 18) {
-	            printf("%s belum cukup umur untuk menikah.\n", name);
-	            member = NULL; // Reset member jika belum cukup umur
-	        }
-	    }
-	} while (member == NULL);
-	int age = calculateAge(member->YearOfBirth);
+        if (strcmp(name, "x") == 0) {
+            // Kembali ke menu utama jika user memilih untuk keluar
+            return;
+        }
+
+        member = findNode(tree->Root, name);
+        if (member == NULL) {
+            printf("Anggota keluarga dengan nama '%s' tidak ditemukan.\n", name);
+        } else if (strlen(member->PartnerName) > 0) {
+            printf("%s sudah memiliki pasangan.\n", name);
+            member = NULL; // Reset member jika sudah memiliki pasangan
+        } else {
+            int age = calculateAge(member->YearOfBirth);
+            if (age < 18) {
+                printf("%s belum cukup umur untuk menikah.\n", name);
+                member = NULL; // Reset member jika belum cukup umur
+            }
+        }
+    } while (member == NULL);
+
     // Menampilkan informasi anggota keluarga
+    int age = calculateAge(member->YearOfBirth);
     printf("Informasi Anggota Keluarga:\n");
     // Memanggil fungsi ASCII sesuai dengan jenis kelamin
-	if (member->gender == Male) {
-	    printFromFile("../db/king_ascii.txt");
-	} else {
-	    printFromFile("../db/queen_ascii.txt");
-	}
+    if (member->gender == Male) {
+        printFromFile("../db/king_ascii.txt");
+    } else {
+        printFromFile("../db/queen_ascii.txt");
+    }
     printf("\nNama: %s\n", member->Name);
     printf("Umur: %d tahun\n", age);
     printf("Jenis Kelamin: %s\n", (member->gender == Male) ? "Male" : "Female");
     printf("Status Menikah: %s\n\n", (strlen(member->PartnerName) > 0) ? "Menikah" : "Single");
 
-	// Validasi input nama partner
-	char partnerName[100];
-	do {
-	    printf("Masukkan nama partner: ");
-	    fgets(partnerName, sizeof(partnerName), stdin);
-	    partnerName[strcspn(partnerName, "\n")] = '\0'; // Hilangkan newline dari input
+    // Validasi input nama partner
+    char partnerName[100];
+    do {
+        printf("Masukkan nama partner (klik 'x' untuk keluar): ");
+        fgets(partnerName, sizeof(partnerName), stdin);
+        partnerName[strcspn(partnerName, "\n")] = '\0'; // Hilangkan newline dari input
 
-	    if (strlen(partnerName) == 0) {
-	        printf("Nama partner tidak boleh kosong.\n");
-	    }
-	} while (strlen(partnerName) == 0);
+        if (strcmp(partnerName, "x") == 0) {
+            // Kembali ke menu utama jika user memilih untuk keluar
+            return;
+        }
 
-	// Validasi usia partner
-	int partnerAge;
-	do {
-	    printf("Masukkan usia partner: ");
-	    scanf("%d", &partnerAge);
+        if (strlen(partnerName) == 0) {
+            printf("Nama partner tidak boleh kosong.\n");
+        }
+    } while (strlen(partnerName) == 0);
 
-	    if (partnerAge < 18) {
-	        printf("%s belum cukup umur untuk menikah.\n", partnerName);
-	    }
-	} while (partnerAge < 18);
+    // Validasi usia partner
+    int partnerAge;
+    do {
+        printf("Masukkan usia partner (klik 'x' untuk keluar): ");
+        char input[100];
+        fgets(input, sizeof(input), stdin);
+        if (strcmp(input, "x\n") == 0) {
+            // Kembali ke menu utama jika user memilih untuk keluar
+            return;
+        }
+        sscanf(input, "%d", &partnerAge);
 
-	// Validasi jenis kelamin partner
-	char genderStr[10];
-	Gender partnerGender;
-	do {
-	    printf("Masukkan jenis kelamin partner (Male/Female): ");
-	    scanf("%s", genderStr);
-	    partnerGender = parseGender(genderStr);
+        if (partnerAge < 18) {
+            printf("%s belum cukup umur untuk menikah.\n", partnerName);
+        }
+    } while (partnerAge < 18);
 
-	    if (partnerGender == member->gender) {
-	        printf("Pernikahan ini sudah dipastikan dilarang karena jenis kelamin sama.\n");
-	    }
-	} while (partnerGender == member->gender);
+    // Validasi jenis kelamin partner
+    char genderStr[10];
+    Gender partnerGender;
+    do {
+        printf("Masukkan jenis kelamin partner (Male/Female) (klik 'x' untuk keluar): ");
+        fgets(genderStr, sizeof(genderStr), stdin);
+        genderStr[strcspn(genderStr, "\n")] = '\0'; // Hilangkan newline dari input
+
+        if (strcmp(genderStr, "x") == 0) {
+            // Kembali ke menu utama jika user memilih untuk keluar
+            return;
+        }
+
+        partnerGender = parseGender(genderStr);
+
+        if (partnerGender == member->gender) {
+            printf("Pernikahan ini sudah dipastikan dilarang karena jenis kelamin sama.\n");
+        }
+    } while (partnerGender == member->gender);
 
     // Menampilkan informasi partner
     printf("\nInformasi Partner:\n");
@@ -340,12 +441,19 @@ void insertPartner(DataTree *tree) {
     printf("Umur: %d tahun\n", partnerAge);
     printf("Jenis Kelamin: %s\n", (partnerGender == Male) ? "Male" : "Female");
 
-    // Menanyakan restu keluarga
-    int consent;
+	// Menanyakan restu keluarga
+	int consent;
 	do {
 	    printf("\nPasangan Anda cocok, mari kita tanyakan restu keluarga? (1: Ya / 0: Tidak): ");
 	    scanf("%d", &consent);
+
+	    if (consent != 0 && consent != 1) {
+	        printf("Inputan tidak valid. Harap masukkan 1 untuk Ya atau 0 untuk Tidak.\n");
+	        // Membersihkan input buffer
+	        while (getchar() != '\n');
+	    }
 	} while (consent != 0 && consent != 1);
+
 
     // Memproses restu keluarga
     if (consent == 1) {
@@ -372,7 +480,6 @@ void insertPartner(DataTree *tree) {
     }
 }
 
-
 void printRoyalFamilyMember(DataTree *tree) {
 int selectedOption = 1;
     int status = 1;
@@ -380,20 +487,36 @@ int selectedOption = 1;
     while(status == 1) {
 		system("cls"); // Membersihkan layar
         // Menampilkan menu
+        gotoxy(30, 2);
+        warnateks(11);
         printf("================= Member =================\n");
+
+        setOptionColor(1, selectedOption);
+        gotoxy(30, 4);
         printf("[%c] Print All Family Members\n", (selectedOption == 1) ? 'X' : ' ');
+
+        setOptionColor(2, selectedOption);
+        gotoxy(30, 5);
         printf("[%c] Print Royal Family Members\n", (selectedOption == 2) ? 'X' : ' ');
-		printf("[%c] Kembali\n", (selectedOption == 3) ? 'X' : ' ');
+
+        setOptionColor(3, selectedOption);
+        gotoxy(30, 6);
+        printf("[%c] Kembali\n", (selectedOption == 3) ? 'X' : ' ');
+
+        warnateks(11); // Reset to default color
         int keyboard = getch();
 
         switch (keyboard) {
             case 72: // Panah atas
                 selectedOption = (selectedOption > 1) ? selectedOption - 1 : 3;
+                Beep(800, 100);
                 break;
             case 80: // Panah bawah
                 selectedOption = (selectedOption < 3) ? selectedOption + 1 : 1;
+                Beep(800, 100);
                 break;
             case 13: // Tombol Enter
+                Beep(800, 300);
                 switch (selectedOption) {
                     case 1:
                         displayTree(tree);
@@ -412,7 +535,6 @@ int selectedOption = 1;
     }
     waitForEnter();
 }
-
 
 /**** Fungsi untuk mencetak node dengan indentasi ****/
 void printNode(NBTree *node, int level, bool isLastChild)
@@ -434,16 +556,27 @@ void printNode(NBTree *node, int level, bool isLastChild)
             printf("+--");
         }
     }
+	if (node->IsRoyalFamilyMember) {
+        warnateks(LIGHT_BLUE); // Merah
+    } else {
+    	warnateks(WHITE);
 
+	}
     // Print node name and partner name if present
     if (strlen(node->PartnerName) > 0) {
-        printf("[%s] & [%s]\n", node->Name, node->PartnerName);
+        printf("[%s] & [%s]", node->Name, node->PartnerName);
     } else {
-        printf("[%s]\n", node->Name);
+        printf("[%s]", node->Name);
     }
+
+    if (node->IsLeader){
+        printf( " (Pemimpin saat ini)");
+    }
+
+    printf("\n");
 }
 
-/**** Mendapatkan level node dengan isLeader true ****/
+/** Mendapatkan level node dengan isLeader true **/
 int getLeaderLevel(NBTree *node, int level)
 /* IS : node adalah node dari tree, level adalah level node tersebut */
 /* FS : mengembalikan level dari node yang isLeader-nya true, atau -1 jika tidak ditemukan */
@@ -458,13 +591,13 @@ int getLeaderLevel(NBTree *node, int level)
     return getLeaderLevel(node->NextBrother, level);
 }
 
-/**** Cetak pohon dari level tertentu ****/
+/** Cetak pohon dari level tertentu **/
 void printTreeAtLevel(NBTree *node, int currentLevel, int targetLevel, bool isLastChild)
 /* IS : node adalah node dari tree, currentLevel adalah level node tersebut, targetLevel adalah level dari mana mulai mencetak */
 /* FS : menampilkan tree dari targetLevel dan ke bawah */
 {
     if (node == NULL) return;
-    if (currentLevel >= targetLevel && node->IsRoyalFamilyMember) {
+    if (currentLevel >= targetLevel && node->IsRoyalFamilyMember && node->IsAlive) {
         printNode(node, currentLevel - targetLevel, isLastChild);
     }
 
@@ -477,7 +610,7 @@ void printTreeAtLevel(NBTree *node, int currentLevel, int targetLevel, bool isLa
     }
 }
 
-/**** Menampilkan pohon mulai dari level isLeader true ****/
+/** Menampilkan pohon mulai dari level isLeader true **/
 void displayTreeFromLeader(DataTree *tree)
 /* IS : tree sudah terbentuk */
 /* FS : menampilkan tree mulai dari level node yang isLeader-nya true */
@@ -517,14 +650,16 @@ void displayTree(DataTree *tree)
 /* IS : tree sudah terbentuk */
 /* FS : menampilkan tree */
 {
+    clearscreen();
     if (tree == NULL || tree->Root == NULL) return;
     printTree(tree->Root, 0, true);
 }
 
-
 void encyclopedia(DataTree *tree) {
-    printf("Daftar anggota keluarga kerajaan yang aktif:\n");
-	displayTreeFromLeader(tree);
+    clearscreen();
+    printf("========== MENU INSERT ENSIKLOPEDIA ==========");
+    printf("Daftar anggota keluarga kerajaan :\n\n");
+	displayTree(tree);
 
 	printf("\nMasukkan nama anggota keluarga untuk menambahkan deskripsi naratif: ");
 	char name[100];
@@ -556,14 +691,7 @@ void encyclopedia(DataTree *tree) {
     waitForEnter();
 }
 
-
 int calculateAge(int yearOfBirth) {
-    // Mendapatkan tahun sekarang
-    time_t now;
-    time(&now);
-    struct tm *local = localtime(&now);
-    int currentYear = local->tm_year + 1900;
-
     // Menghitung umur
     return currentYear - yearOfBirth;
 }
@@ -598,18 +726,32 @@ void marriageAscii(const char *name1, const char *name2, Gender gender1, Gender 
 
     // Baca isi file baris per baris
     char line[MAX_LINE_LENGTH];
+    int line_count = 0;
     while (fgets(line, sizeof(line), file)) {
+        // Hitung jumlah baris
+        line_count++;
+
+        // Cetak baris yang sudah diubah dengan warna yang berbeda untuk setiap bagian
+        if (line_count <= 5) {
+            warnateks(DARK_BLUE); // Warna putih untuk bagian atas
+        } else if (line_count > 5 && line_count <= 10) {
+            warnateks(TURQUOISE); // Warna biru untuk bagian tengah
+        } else {
+            warnateks(LIGHT_BLUE); // Warna merah untuk bagian bawah
+        }
+
         // Ganti bagian yang ingin diubah dengan input dinamis
         replaceString(line, "||  {   STEVE   }   ||      &        ||   {   JENNY   }  ||", placeholder1);
 
         // Cetak baris yang sudah diubah
         printf("%s", line);
     }
-
+	warnateks(WHITE);
     // Tutup file
     fclose(file);
     waitForEnter();
 }
+
 
 void printFromFile(const char* location){
 	FILE *read;
@@ -623,4 +765,34 @@ void printFromFile(const char* location){
 	fclose(read);
 }
 
+void printFromFileSplash(const char* location) {
+    FILE *file = fopen(location, "rt");
+    if (file == NULL) {
+        printf("Gagal membuka file.\n");
+        return;
+    }
 
+    // Baca isi file baris per baris
+    char line[MAX_LINE_LENGTH];
+    int line_count = 0;
+    while (fgets(line, sizeof(line), file)) {
+        // Hitung jumlah baris
+        line_count++;
+
+        // Cetak baris yang sudah diubah dengan warna yang berbeda untuk setiap bagian
+        if (line_count <= 8) {
+            warnateks(DARK_BLUE); // Warna biru untuk bagian atas
+        } else if (line_count > 8 && line_count <= 20) {
+            warnateks(TURQUOISE); // Warna turquoise untuk bagian tengah
+        } else {
+            warnateks(LIGHT_BLUE); // Warna merah untuk bagian bawah
+        }
+
+        // Cetak baris yang sudah diubah
+        printf("%s", line);
+        warnateks(LIGHT_BLUE); // Reset warna setelah setiap baris
+    }
+
+    // Tutup file
+    fclose(file);
+}

@@ -18,12 +18,12 @@ void passedAway(DataTree *tree){
     system("cls");
     header("Kematian Anggota Keluarga");
 
-//    displayActiveRoyalFamily(tree->Root);
+    displayTree(tree);
 
     char selectedName[100];
     printf("Masukkan nama anggota keluarga kerajaan yang meninggal: ");
     fgets(selectedName, sizeof(selectedName), stdin);
-    selectedName[strcspn(selectedName, "\n")] = '\0'; // Hilangkan newline dari input
+    selectedName[strcspn(selectedName, "\n")] = '\0';
 
     NBTree *selectedNode = findNode(tree->Root, selectedName);
     printf("%s",selectedNode->Name);
@@ -32,11 +32,9 @@ void passedAway(DataTree *tree){
         if (selectedNode->IsAlive){
             selectedNode->IsAlive = false;
             selectedNode->IsRoyalFamilyMember = false;
-
             if (selectedNode->IsLeader){
                 nextSuccessor(selectedNode);
             }
-
 //            updateFile("db/data.txt", tree);
             waitForEnter();
         } else {
@@ -59,7 +57,6 @@ void abdicate(DataTree *tree){
 
     printf("Pada tahun %d, %s memilih mengundurkan diri", currentYear, leaderNode->Name);
     nextSuccessor(leaderNode);
-
 //    updateFile("db/data.txt", tree);
     waitForEnter();
 }
@@ -83,11 +80,11 @@ void nextSuccessor(NBTree *tree) {
         return;
     }
 
-    if (true){//(tree->IsLeader) {
+    if (tree->IsLeader) {
         NBTree *current = tree->FirstSon;
         NBTree *nextSuccessor = NULL;
 
-        // Check if the king/queen has children
+        // cari anak raja - derajat 1
         while (current != NULL) {
             if (current->IsAlive && current->IsRoyalFamilyMember) {
                 if (nextSuccessor == NULL || current->YearOfBirth < nextSuccessor->YearOfBirth) {
@@ -97,7 +94,7 @@ void nextSuccessor(NBTree *tree) {
             current = current->NextBrother;
         }
 
-        // If no children, check siblings and their children
+        // cari anak dari adik raja - derajat 2
         if (nextSuccessor == NULL) {
             current = tree->NextBrother;
             while (current != NULL) {
@@ -114,50 +111,36 @@ void nextSuccessor(NBTree *tree) {
             }
         }
 
-        // If no siblings or nephews, check other relatives
+        // cari anak dari anak adik orangtua raja - derajat 3
         if (nextSuccessor == NULL) {
-            current = tree->Parent;
-            while (current != NULL) {
-                // Check uncles and aunts and their children
-                NBTree *uncle = current->Parent->FirstSon;
-                while (uncle != current->Parent) {
-                    if (uncle != tree->Parent) {
-                        NBTree *cousin = uncle->FirstSon;
-                        while (cousin != NULL) {
-                            if (cousin->IsAlive && cousin->IsRoyalFamilyMember) {
-                                if (nextSuccessor == NULL || cousin->YearOfBirth < nextSuccessor->YearOfBirth) {
-                                    nextSuccessor = cousin;
+            NBTree *current = tree->Parent; // orangtua raja
+            if (current!= NULL) {
+                NBTree *uncle = current->NextBrother; // adik orangtua raja
+                while (uncle!= NULL) {
+                    NBTree *nephew = uncle->FirstSon; // anak adik orangtua raja
+                    while (nephew!= NULL) {
+                        NBTree *grandchild = nephew->FirstSon; // cucu adik orangtua raja
+                        while (grandchild!= NULL) {
+                            if (grandchild->IsAlive && grandchild->IsRoyalFamilyMember) {
+                                if (nextSuccessor == NULL || grandchild->YearOfBirth < nextSuccessor->YearOfBirth) {
+                                    nextSuccessor = grandchild;
                                 }
                             }
-                            cousin = cousin->NextBrother;
+                            if (nextSuccessor != NULL) {
+                                printf("Pewaris selanjutnya adalah: %s\n", nextSuccessor->Name);
+                                tree->IsLeader = false;
+                                nextSuccessor->IsLeader = true;
+                                return;
+                            }
+                            grandchild = grandchild->NextBrother;
                         }
+                        nephew = nephew->NextBrother;
                     }
                     uncle = uncle->NextBrother;
                 }
-
-                // Check grandparents and their siblings and their children
-                if (nextSuccessor == NULL && current->Parent != NULL) {
-                    NBTree *grandparent = current->Parent->Parent;
-                    NBTree *greatUncle = grandparent->FirstSon;
-                    while (greatUncle != grandparent->NextBrother) {
-                        if (greatUncle != current->Parent->Parent) {
-                            NBTree *secondCousin = greatUncle->FirstSon;
-                            while (secondCousin != NULL) {
-                                if (secondCousin->IsAlive && secondCousin->IsRoyalFamilyMember) {
-                                    if (nextSuccessor == NULL || secondCousin->YearOfBirth < nextSuccessor->YearOfBirth) {
-                                        nextSuccessor = secondCousin;
-                                    }
-                                }
-                                secondCousin = secondCousin->NextBrother;
-                            }
-                        }
-                        greatUncle = greatUncle->NextBrother;
-                    }
-                }
-
-                current = current->Parent;
             }
         }
+
 
         if (nextSuccessor != NULL) {
             printf("Pewaris selanjutnya adalah: %s\n", nextSuccessor->Name);
@@ -166,4 +149,3 @@ void nextSuccessor(NBTree *tree) {
         }
     }
 }
-

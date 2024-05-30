@@ -1,13 +1,24 @@
-Raja Willem III:1817:Male:0:0:0:1:1:1
-Willem Pangeran Oranye:1840:Male:0:0:0:Raja Willem III:namaPartner:0
-Pangeran Maurits:1843:Male:0:0:0:Raja Willem III:namaPartner:0
-Pangeran Oranye:1851:Male:0:0:0:Raja Willem III::0
-Ratu Wilhemina:1880:Female:0:0:0:Raja Willem III::0
-Ratu Juliana:1909:Female:0:0:0:Ratu Wilhemina::0
-Ratu Beatrix:1938:Female:0:0:0:Ratu Juliana::0
-Raja Willem:1967:Male:0:0:0:Ratu Beatrix::0
-Catharina Amalia:2003:Female:0:0:0:Raja Willem::0
-Putri Alexia:2005:Female:0:0:0:Raja Willem::0
-Putri Ariane:2007:Female:0:0:0:Raja Willem::0
-Pangeran Constantijn:1969:Male:0:0:0:Ratu Beatrix::0
-Leonore:2006:Female:0:0:0:Pangeran Constantijn::0
+Raja Willem III:1817:Male:0:0:1:NULL:NULL:0
+Willem Pangeran Oranye:1840:Male:0:0:1:Raja Willem III:NULL:0
+Pangeran Maurits:1843:Male:0:0:1:Raja Willem III:NULL:0
+Alexander Pangeran Oranye:1851:Male:0:0:1:Raja Willem III:NULL:0
+Ratu Wilhemina:1880:Female:0:0:1:Raja Willem III:NULL:0
+Ratu Juliana:1909:Female:0:0:1:Ratu Wilhemina:NULL:0
+Ratu Beatrix:1938:Female:0:1:1:Ratu Juliana:Claus Von Amsberg:1
+Raja Willem-Alex:1967:Male:1:1:1:Ratu Beatrix:Queen Maxima:1
+Catharina Amalia:2003:Female:0:1:1:Raja Willem-Alex:NULL:1
+Putri Alexia:2005:Female:0:1:1:Raja Willem-Alex:NULL:1
+Putri Ariane:2007:Female:0:1:1:Raja Willem-Alex:NULL:1
+Pangeran Cons:1969:Male:0:1:1:Ratu Beatrix:Princess Laurentien:1
+Eloise:2002:Female:0:1:1:Pangeran Cons:NULL:1
+Claus-Casimir:2004:Female:0:1:1:Pangeran Cons:NULL:1
+Leonore:2006:Female:0:1:1:Pangeran Cons:NULL:1
+Putri Margriet:1943:Female:0:1:1:Ratu Juliana:Profesor Pieter:1
+Pangeran Maurits N:1968:Male:0:1:1:Putri Margriet:Marilene:1
+Anastasia:2001:Female:0:1:1:Pangeran Maurits N:NULL:1
+Lucas:2002:Female:0:1:1:Pangeran Maurits N:NULL:1
+Felicia:2005:Female:0:1:1:Pangeran Maurits N:NULL:1
+Pangeran Bernhard:1969:Male:0:1:1:Putri Margriet:Annette:1
+Isabella:2002:Female:0:1:1:Pangeran Bernhard:NULL:1
+Samuel:2004:Female:0:1:1:Pangeran Bernhard:NULL:1
+Benjamin:2008:Female:0:1:1:Pangeran Bernhard:NULL:1
