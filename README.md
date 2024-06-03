@@ -28,7 +28,7 @@ Berikut fitur yang ada pada program ini:
 
 <h2> Data Structure</h2>
 
-'''
+```
 Node : variabel bertipe komposit dengan sub variabel sebagai berikut :
 	`Name` : variabel tunggal bertipe array of char
 	`YearOfBirth` : variabel tunggal bertipe integer
@@ -42,7 +42,7 @@ Node : variabel bertipe komposit dengan sub variabel sebagai berikut :
 	`FS` : variabel tunggal bertipe pointer ke Node
 	`NB` : variabel tunggal bertipe pointer ke Node
 	`PR` : variabel tunggal bertipe pointer ke Node
-'''
+```
   
 <h2>💻 Built with</h2>
 
